@@ -6,7 +6,7 @@
 
 # Entrega5_BBDD
 
-Versión: 3 de marzo de 2020
+Versión: 18 de marzo de 2021
 
 ## Objetivos
  * Afianzar los conocimientos obtenidos sobre el desarrollo de programas interactivos con Node.js
