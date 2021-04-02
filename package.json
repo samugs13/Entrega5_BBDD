@@ -4,7 +4,9 @@
     "description": "CORE_Entrega5_BBDD",
     "license": "GNU",
     "version": "0.0.0",
-    "engines": { "node": "12.16" },
+    "engines": {
+        "node": "12.16"
+    },
     "info": {
         "githubURL": "CORE-2020/Entrega5_BBDD",
         "serverUrl": "https://autocorector.dit.upm.es/",

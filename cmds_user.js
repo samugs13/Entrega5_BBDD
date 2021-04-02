@@ -1,5 +1,5 @@
 
-const {User, Quiz} = require("./model.js").models;
+const {User, Quiz, Score} = require("./model.js").models;
 
 exports.help = (rl) => 
   rl.log(
@@ -21,6 +21,9 @@ exports.help = (rl) =>
     > lf | fl | f    ## favourites: list all
     > cf | fc        ## favourite: create
     > df | fd        ## favourite: delete
+    >
+    > p              ## play
+    > ls             ## list score
     >
     > e              ## exit & return to shell`
   )
@@ -112,4 +115,3 @@ exports.delete = async (rl) => {
 
   rl.log(`  ${name} deleted from DB`);  
 }
-

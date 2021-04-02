@@ -1,5 +1,9 @@
 
-const {User, Quiz} = require("./model.js").models;
+const {User, Quiz, Score} = require("./model.js").models;
+const { Sequelize, Model, DataTypes } = require('sequelize');
+
+const options = { logging: false};
+const sequelize = new Sequelize("sqlite:db.sqlite", options);
 
 // Show all quizzes in DB including <id> and <author>
 exports.list = async (rl) =>  {
@@ -81,5 +85,76 @@ exports.delete = async (rl) => {
   
   if (n===0) throw new Error(`  ${id} not in DB`);
   rl.log(`  ${id} deleted from DB`);
+}
+
+//Play
+
+
+exports.play = async (rl) => {
+
+let resueltos = [];
+let score=0;
+
+  while (await Quiz.count({where: {id: {[Sequelize.Op.notIn]:resueltos}}})){ //resultado if = quizes sin contestar
+
+    let c = await Quiz.count({where: {id: {[Sequelize.Op.notIn]:resueltos}}});
+
+    //console.log(`Preguntas sin resolver: ${c}\n`);
+    
+    let quiz = await Quiz.findOne({where: {id: {[Sequelize.Op.notIn]:resueltos}}, 
+      offset: Math.floor(Math.random()*c)}
+      );
+    if (!quiz) throw new Error(`error`);
+
+    //console.log(`Id de pregunta a resolver: ${quiz.id}`);
+
+    let contestacion = await rl.questionP(quiz.question);
+    if (!contestacion) throw new Error("Response can't be empty!");
+
+    resueltos.push(quiz.id);
+
+    //console.log(`contenido de resueltos ${resueltos}`);
+
+    if (contestacion.toLowerCase().trim()===quiz.answer.toLowerCase().trim()) {
+
+      rl.log(`The answer "${contestacion}" is right! `);
+      score++;
+    }
+
+    else {
+    rl.log(`The answer "${contestacion}" is wrong! `);
+    break;
+    }
+  }
+  rl.log(`Score: ${score}`);
+
+  let name = await rl.questionP('Whats your name?');
+  if (!name) throw new Error("Response can't be empty!");
+
+  let [user, o] = await User.findOrCreate({where: {name}, defaults: {age: 0}});
+
+  console.log(`id de usuario creado ${user.id}`);
+
+  let sobj = await Score.create({wins: score});
+  await user.addScore(sobj);
+
+
+  console.log(`User score y score: ${user.wins} y ${score}`);
+
+}
+
+exports.score = async (rl) => {
+  //let users = await User.findAll();
+  const event = new Date('18 Feb 2020 14:20:27 GMT');
+  let scores = await Score.findAll({
+    include: {model: User, as: 'user'
+  },
+    order: [['wins', 'DESC']]
+  });
+
+  for(s of scores){
+    rl.log(`${s.user.name}|${s.wins}|${event.toUTCString()}`);
+  }
+    
 }
 
